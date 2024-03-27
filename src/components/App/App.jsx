@@ -1,23 +1,66 @@
-import friends from "/src/friends.json";
-import userData from "/src/userData.json";
-import transactions from "/src/transactions.json";
-import Profile from "../Profile/Profile";
-import FriendList from "../FriendList/FriendList";
-import TransactionHistory from "../TransactionHistory/TransactionHistory";
+import { useState, useEffect } from 'react';
+import Description from '../Description/Description';
+import Options from '../Options/Options';
+import Feedback from '../Feedback/Feedback';
+import Notification from '../Notification/Notification';
 
+const LS_KEY = 'saved-feedbacks';
 
-export default function App() {
+const App = () => {
+  const [feedbacks, setFeedbacks] = useState(() => {
+    const savedFeedbacks = localStorage.getItem(LS_KEY);
     return (
+      JSON.parse(savedFeedbacks) ?? {
+    good: 0,
+    neutral: 0,
+    bad: 0
+    }
+    );
+  });
+
+  const updateFeedback = feedbackType => {
+      setFeedbacks({
+      ...feedbacks,
+      [feedbackType]: feedbacks[feedbackType] + 1,
+    });
+}
+
+    function handleResetFeedbacks() {
+    setFeedbacks({
+      good: 0,
+      neutral: 0,
+      bad: 0,
+    });
+  }
+
+const totalFeedback = Object.values(feedbacks).reduce(
+    (acc, value) => acc + value,
+    0
+  );
+
+ const stats = Math.round(
+    ((feedbacks.good + feedbacks.neutral) / totalFeedback) * 100
+  );
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEY, JSON.stringify(feedbacks));
+  }, [feedbacks]);
+
+  return (
     <>
-      <Profile
-        name={userData.username}
-        tag={userData.tag}
-        location={userData.location}
-        image={userData.avatar}
-        stats={userData.stats}
-        />
-        <FriendList friends={friends} /> 
-        <TransactionHistory items={transactions} />
+      <Description />
+      <Options
+        updateFeedback={updateFeedback}
+        handleResetFeedbacks={handleResetFeedbacks}
+        total={totalFeedback}
+      />
+      {totalFeedback > 0 ? (
+        <Feedback feedbacks={feedbacks} total={totalFeedback} stats={stats} />
+      ) : (
+        <Notification />
+      )}
     </>
   );
-}
+};
+
+export default App;

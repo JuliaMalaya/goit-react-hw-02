@@ -1,0 +1,16 @@
+.title {
+    font-size: 30px;
+    margin: 10px 0 30px;
+    color: black;
+}
+
+.text {
+    font-size: 20px;
+    margin: 0px;
+    color: black;
+}
+
+.pos {
+    margin-bottom: 10px;
+    padding-left: 10px;
+}
